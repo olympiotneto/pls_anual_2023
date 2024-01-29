@@ -298,9 +298,8 @@ d |>
 
 **Não há informação de valores de consumo de papel contratado entre 2021 a 2023.**
 
-```{=tex}
 \newpage
-```
+
 # Copos Descartáveis (Item 3)
 
 Os resultados relativos ao **Item 3 - Copos Descartáveis** serão apresentados considerando os indicadores *3.1 - Consumo de copos descartáveis (CC)* e *3.2 - Gasto com copos descartáveis (GC)*.
@@ -393,9 +392,8 @@ O consumo anual de copos descartáveis em 2023 foi de `r format(CC$Indicador[2],
 
 **Não há registros de gastos com copos descartáveis em 2021, 2022 e 2023.** A partir de novembro de 2022, o TRE/SP passou a utilizar copos biodegradáveis que não entram no cômputo.
 
-```{=tex}
 \newpage
-```
+
 # Água Envasada em Embalagens Plásticas (Item 4)
 
 As variáveis referentes ao **Item 4 - Água Envasada em Embalagens Plásticas** serão apresentadas considerando-se os indicadores mensais *4.1 - Consumo de embalagens descartáveis para água mineral (CED)* e *4.2 - Consumo de embalagens retornáveis para água mineral (CER)*, *4.3 - Gasto com água mineral em embalagens descartáveis (GAED)* e *4.4 - Gasto com água mineral em embalagens retornáveis (GAER)*.
