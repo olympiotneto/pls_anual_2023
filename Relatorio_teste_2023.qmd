@@ -31,7 +31,7 @@ editor: visual
 \includegraphics[width=7cm]{logo_tre.png}
 \end{center}
 \begin{center}
-\Large\textbf{2023}
+\Large\textbf{2024}
 \end{center}
 \newpage
 \tableofcontents
