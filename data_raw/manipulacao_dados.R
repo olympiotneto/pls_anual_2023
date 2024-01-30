@@ -1,13 +1,13 @@
 library(tidyverse)
 
-data <-read_delim("data_raw/dados_res400.csv",
+data <-read_delim("data_raw/dados_res400_SP_30012024.csv",
                                 delim = ";", escape_double = FALSE, locale = locale(decimal_mark = ",",
                                                                                     grouping_mark = ".", encoding = "ISO-8859-1"),
                                 trim_ws = TRUE)
 #Tratamento dos dados
 
 d <- data |>
-  filter(tribunal == "TRE-SP", periodicidade == "Mensal") |>
+  filter(periodicidade == "Mensal") |>
   dplyr::select(ano, mes, acap:vd) |>
   mutate(mes = case_when(
     mes == 1 ~"Jan",
