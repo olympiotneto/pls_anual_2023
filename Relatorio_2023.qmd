@@ -10,6 +10,9 @@ format:
     include-in-header: 
       text: 
         \usepackage{typearea}
+        \setkeys{Gin}{width=0.99\linewidth}
+        \setlength{\parskip}{12pt}
+        \setlength{\parindent}{30pt}
   
 editor: visual
 ---
@@ -332,7 +335,7 @@ d |> select(ano, mes, cc) |>
   autofit()
 ```
 
-A @fig-gcc representa o desempenho do indicador nos anos de 2021 e 2023 e a @fig-gccac , os acumulados anuais do indicador.
+A @fig-gcc representa o desempenho do indicador nos anos de 2021 e 2023 e a @fig-gccac, os acumulados anuais do indicador.
 
 ```{r}
 #| echo: false
@@ -444,7 +447,7 @@ filter(d,ano %in% c("2021", "2023")) |>
 
 ```
 
-A @fig-gced representa o desempenho do indicador em 2021 e 2023, e a @fig-gcedac , os acumulados anuais do indicador.
+A @fig-gced representa o desempenho do indicador em 2021 e 2023, e a @fig-gcedac, os acumulados anuais do indicador.
 
 ```{r}
 #| echo: false
