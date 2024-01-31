@@ -27,7 +27,7 @@ editor: visual
 \Huge\textbf{Avaliação dos Indicadores do PLS - Resolução CNJ Nº 400/2021} 
 \end{center}
 \begin{center}
-\Huge\textbf{Consolidação dos dados mensais de 2023}
+\Large\textbf{Consolidação dos dados mensais de 2023}
 \end{center}
 \begin{center}
 \vspace{6cm}
