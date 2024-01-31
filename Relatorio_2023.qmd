@@ -4,7 +4,7 @@ author: ""
 lang: "pt-br" # -----> Linguagem: português
 format:
   pdf:
-    number-sections: true
+    number-sections: false
     fig-pos: "H"
     papersize: A4
     include-in-header: 
@@ -455,7 +455,7 @@ A @fig-gced representa o desempenho do indicador em 2021 e 2023, e a @fig-gcedac
 #| label: fig-gcedac
 #| fig-cap: 4.1- CED - acumulados anuais - 2021 a 2023
 #| fig-cap-location: bottom
-#| 
+
 d |> 
 group_by(ano) |>
 summarise(ced = sum(ced, na.rm = TRUE)) |>  
@@ -479,3 +479,428 @@ CED <- FunVar(d=d,indic = ced)
 ```
 
 O consumo anual de embalagens descartáveis para água mineral foi, em 2023, de `r format(CED$Indicador[2], big.mark=".")` unidades enquanto no ano de 2021, foi de `r format(CED$Indicador[1], big.mark=".")`, o que resulta no **incremento** de `r abs(round(CED$Ind_Var,1))`% entre esses dois períodos analisados.
+
+## Consumo de embalagens retornáveis para água mineral (4.2 - CER)
+
+**Definição**: quantidade de embalagens plásticas retornáveis para água mineral envasada (galões ou garrafões retornáveis) requisitada pelas unidades.
+
+**Unidade de medida**: unidades.
+
+A @tbl-tabcer apresenta a evolução mensal do indicador desde 2021.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabcer
+#| tbl-cap: Indicador 4.2 - Consumo de embalagens retornáveis para água mineral (CER)
+
+
+d |> select(ano, mes, cer) |> 
+  spread(ano,cer) |>
+  janitor::adorn_totals("row") |> 
+  flextable() |> 
+  valign( valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  set_header_labels(mes = "Mês") |> 
+  bold(bold = TRUE, part = "header") |> 
+  bold(bold = TRUE, i = 13) |> 
+  autofit()
+```
+
+A @fig-gcer representa o desempenho do indicador nos anos de 2021 e 2023 e a @fig-gcerac, os acumulados anuais do indicador.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gcer
+#| fig-cap: 4.2- CER - 2021 e 2023
+#| fig-cap-location: bottom
+
+filter(d,ano %in% c("2021", "2023")) |> 
+  ggplot(aes(x=mes,y=cer, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, 
+                linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(cer, big.mark = "."), fill= ano, 
+                       fontface ="bold"),color="white", size = 3)+
+  scale_color_manual(values = assec_colors[c(2,5)])+
+  scale_fill_manual(values = assec_colors[c(2,5)])+
+  ylab("CER\n(unidades)") + xlab("Mês")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gcerac
+#| fig-cap: 4.2 - CER - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+d |> 
+  group_by(ano)|> 
+  summarise(cer = sum(cer, na.rm = TRUE)) |>  
+  ggplot(mapping=aes(x=ano, y=cer, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_bw()+
+  geom_label(aes(label=format(cer, big.mark = "."), fill= ano, fontface="bold"),
+             color="white",vjust=1.1,hjust="center")+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+
+  ylab("CER\n(unidades)") + xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+```{r CER_calc, echo=FALSE,include=FALSE}
+## variação 2020-2022
+
+CER <- FunVar(d=d,indic = cer)
+```
+
+O consumo anual de embalagens retornáveis para água mineral foi, em 2023, de `r format(CER$Indicador[2], big.mark=".")` unidades, enquanto no ano de 2021, foi de `r format(CER$Indicador[1], big.mark=".")`, o que resulta no **incremento** de `r abs(round(CER$Ind_Var,1))`% entre esses dois períodos analisados.
+
+## Gasto com água mineral em embalagens descartáveis (4.3 - GAED)
+
+**Definição**: despesa realizada com aquisição de água mineral envasada em embalagens plásticas descartáveis. Considera-se evento gerador a data da compra pelo órgão, conforme regime de competência.
+
+**Unidade de medida**: reais.
+
+A @tbl-tabgaed apresenta a evolução mensal do indicador desde 2021.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabgaed
+#| tbl-cap: Indicador 4.3 - Gasto com água mineral em embalagens descartáveis (GAED)
+#| 
+
+d |> 
+  select(ano, mes, gaed) |> 
+  spread(ano,gaed) |>
+  janitor::adorn_totals("row")|> 
+  flextable() |> 
+  colformat_double(digits = 2) |> 
+  valign(valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  set_header_labels(mes = "Mês") |> 
+  bold(bold = TRUE, part = "header") |> 
+  bold(bold = TRUE, i = 13) |> 
+  autofit()
+```
+
+A @fig-ggaed representa o desempenho do indicador em 2021 e 2023 e a figura e @fig-ggaedac , os acumulados anuais do indicador.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggaed
+#| fig-cap: 4.3 - GAED - 2021 e 2023
+#| fig-cap-location: bottom
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=gaed, group = ano)) + 
+  theme_classic() +
+  geom_line(aes(color=ano, 
+                linetype = ano),size = 1.1) + 
+  geom_point(aes(fill = ano),shape=21, size=3) +
+  geom_label_repel(aes(label=format(gaed, big.mark = "."), 
+                       fill= ano, fontface="bold"),color="white", 
+                   size = 1.5) +
+  scale_color_manual(values = assec_colors[c(2,5)]) +
+  scale_fill_manual(values = assec_colors[c(2,5)]) +
+  ylab("GAED\n(reais)") + xlab("Mês") +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggaedac
+#| fig-cap: 4.3 - GAED - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+d |> 
+group_by(ano) |> 
+  summarise(gaed = sum(gaed, na.rm = TRUE)) |>  
+  ggplot(mapping=aes(x=ano, y=gaed, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
+  geom_label_repel(aes(label=format(gaed, big.mark = "."), 
+                       fill= ano, fontface="bold"),
+                   color="white",vjust=0,hjust="center",size=3)+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+
+  ylab("GAED\n(reais)") + 
+  xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+```{r GAED_calc, echo=FALSE,include=FALSE}
+## variação 2020-2022
+
+GAED <- FunVar(d=d,indic = gaed)
+```
+
+As despesas anuais com água mineral envasada em embalagens plásticas descartáveis em 2023 foi de R\$ `r format(GAED$Indicador[2], big.mark=".", nsmall=2)` e no decorrer do ano de 2021 R\$ `r format(GAED$Indicador[1], big.mark=".", nsmall=2)`. O **aumento** no período foi de `r abs(round(GAED$Ind_Var,1))`% no gasto com água mineral envasada em embalagens descartáveis .
+
+## Gasto com água mineral em embalagens retornáveis (4.4 - GAER)
+
+**Definição**: despesa realizada com aquisição de água mineral envasada em embalagens plásticas retornáveis (galões ou garrafões retornáveis). Considera-se evento gerador a data da compra pelo órgão, conforme regime de competência.
+
+**Unidade de medida**: reais.
+
+A tabela @tbl-tabgaer apresenta a evolução mensal do indicador desde 2021.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabgaer
+#| tbl-cap: Indicador 4.4 - Gasto com água mineral em embalagens retornáveis (GAER)
+#| 
+d |> 
+select(ano, mes, gaer) |> 
+  spread(ano,gaer) |>
+  janitor::adorn_totals("row")|> 
+  flextable() |>
+  colformat_double(digits = 2) |> 
+  valign( valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  set_header_labels(mes = "Mês") |> 
+  bold(bold = TRUE, part = "header") |> 
+  bold(bold = TRUE, i = 13) |> 
+  autofit()
+```
+
+A figura \@ref(fig:gGAER) representa o desempenho do indicador somente em 2022, pois não havia apuração mensal dessa variável até 2021, e a figura e \@ref(fig:gGAERAc), os acumulados anuais do indicador.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggaer
+#| fig-cap: 4.4 - GAER - 2021 e 2023
+#| fig-cap-location: bottom
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=gaer, group = ano)) + 
+  theme_classic()+
+  geom_line(aes(color=ano, 
+                linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(gaer, big.mark = "."), 
+                       fill= ano, fontface="bold"),color="white", size = 3)+
+  scale_color_manual(values = assec_colors[c(2,5)])+
+  scale_fill_manual(values = assec_colors[c(2,5)])+
+  ylab("GAER\n(reais)") + xlab("Mês")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggaerac
+#| fig-cap: 4.4 - GAER - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+d |> 
+  group_by(ano) |> 
+  summarise(gaer = sum(gaer, na.rm = TRUE)) |>  
+  ggplot(mapping=aes(x=ano, y=gaer, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
+  geom_label_repel(aes(label=format(gaer, big.mark = "."), fill= ano, fontface="bold"), color="white",vjust=0,hjust="center", size = 3)+
+  scale_color_manual(values = assec_colors) +
+  scale_fill_manual(values = assec_colors)+
+  ylab("GAER\n(reais)") + 
+  xlab("Ano") +
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+```{r GAER_calc, echo=FALSE,include=FALSE}
+## variação 2020-2022
+
+GAER <- FunVar(d=d,indic = gaer)
+```
+
+Os gastos anuais com água mineral envasada em embalagens retornáveis em 2023 foi de R\$ `r format(GAER$Indicador[2], big.mark=".", nsmall=2)` e no decorrer do ano de 2021, R\$ `r format(GAER$Indicador[1], big.mark=".", nsmall=2)`. A comparação entre esses dois anos resultou no **aumento** de `r abs(round(GAER$Ind_Var,1))`% no gasto com água mineral em embalagens retornáveis.
+
+```{=tex}
+\newpage
+```
+# Impressão (Item 5)
+
+Nos indicadores referentes ao **Item 5 - Impressão**, somente a variável que quantifica a quantidade de impressões é mensurada mensalmente, denominada de *Quantidade de Impressões (QI)*.
+
+## Quantidade de impressões (5.1 - QI)
+
+**Definição**: quantidade total de impressões realizadas nos equipamentos do órgão, sejam próprios ou locados. Incluem-se as impressões oriundas dos contratos de serviços de impressão e reprografia.
+
+**Unidade de medida**: impressões.
+
+A @tbl-tabqi apresenta a evolução mensal do indicador desde 2021.
+
+```{r tabQI, echo=FALSE, warning=FALSE, paged.print=TRUE, results='asis'}
+#| echo: false
+#| warning: false
+#| label: tbl-tabqi
+#| tbl-cap: Indicador 5.1 - Quantidade de impressões (QI)
+#| 
+
+d |> select(ano, mes, qi) |> 
+  spread(ano,qi) |>
+  janitor::adorn_totals("row")|> 
+  flextable() |> 
+  valign( valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  set_header_labels(mes = "Mês")  |> 
+  bold(bold = TRUE, part = "header") |> 
+  bold(bold = TRUE, i = 13) |> 
+  autofit()
+
+```
+
+As figuras [-@fig-gqi] e [-@fig-gqiac] representam a evolução do indicador nos meses de 2021 e 2023 e o acumulado anual no período, respectivamente.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gqi
+#| fig-cap: 5.1 - Quantidade de impressões - 2021 e 2023
+#| fig-cap-location: bottom
+
+filter(d,ano %in% c("2021", "2023")) |> 
+  ggplot(aes(x=mes,y=qi, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, 
+                linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(qi, big.mark = "."), 
+                       fill= ano, fontface="bold"),color="white", size = 3)+
+  scale_color_manual(values = assec_colors[c(5,2)])+
+  scale_fill_manual(values = assec_colors[c(5,2)])+
+  ylab("QI\n(impressões)") + xlab("Mês")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gqiac
+#| fig-cap: 5.1 - QI - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+
+d |> 
+  group_by(ano) |> 
+  summarise(qi = sum(qi, na.rm = TRUE)) |>  
+  ggplot(mapping=aes(x=ano, y=qi, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
+  geom_label(aes(label=format(qi, big.mark = "."), 
+                 fill= ano, fontface="bold"),
+             color="white",vjust=1.1,hjust="center")+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+
+  ylab("QI\n(impressões)") + xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+```{r QI_calc, echo=FALSE,include=FALSE}
+
+## variação
+QI <- FunVar(d=d,indic = qi)
+
+```
+
+Em 2023 foram realizadas `r format(QI$Indicador[2], big.mark=".")` impressões, enquanto em 2021 `r format(QI$Indicador[1], big.mark=".")` de modo que, então, observa-se um **aumento** de `r abs(round(QI$Ind_Var,1))`% no período analisado.
+
+```{=tex}
+\newpage
+```
+# Energia Elétrica (Item 6)
+
+Os resultados relativos ao item 6 - Energia elétrica serão apresentados utilizando os indicadores *6.1 - CEE - Consumo de Energia Elétrica* e *6.3 - GE - Gasto com energia elétrica* e seus respectivos valores relativos à área construída do TRE.
+
+## Consumo de Energia Elétrica (6.1 - CEE)
+
+**Definição**: consumo total de energia elétrica fornecida pela concessionária.
+
+**Unidade de medida**: kWh
+
+A @tbl-tabcee apresenta a evolução mensal desde 2021.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabcee
+#| tbl-cap: Indicador 6.1 - Consumo de Energia Elétrica (CE)
+#| 
+d |> 
+select(ano, mes, cee) |> 
+  spread(ano,cee) |>
+  janitor::adorn_totals("row")|> 
+  flextable() |> 
+  colformat_double(digits = 1)  |> 
+  set_header_labels(mes = "Mês") |> 
+  align(align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  valign( valign = "center", part = "all") |> 
+  bold(bold = TRUE, i = 13) |> 
+  autofit()
+
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gcee
+#| fig-cap: 6.1 - CEE - 2021 e 2023
+#| fig-cap-location: bottom
+
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=cee, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(cee, big.mark = "."),
+                       fill= ano, fontface="bold"), color="white")+
+  scale_color_manual(values = assec_colors[c(1,4)])+
+  scale_fill_manual(values = assec_colors[c(1,4)])+
+  scale_y_continuous(name="CEE\n(Kwh)", 
+                     labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
+  xlab("Mês")
+
+```
+
+```{r CEE_calc, echo=FALSE,include=FALSE}
+
+# variação 2019-2021
+CEE <- FunVar(d=d,indic = cee)
+
+```
+
+O gráfico \@ref(fig:gCEE) representa a evolução do consumo total de energia elétrica pelo TRE-SP. Durante o ano de 2020 foram consumidos acumuladamente `r format(CEE$Indicador[1], big.mark=".", nsmall=1)` KWh, e em 2022, `r format(CEE$Indicador[2], big.mark=".", nsmall=1)` KWh. Assim, observa-se que houve **redução** de `r abs(round(CEE$Ind_Var,1))`% no consumo no período em estudo. Observa-se que, com o retorno dos trabalhos semi-presenciais em meados de 2022, o consumo de energia tem tendência ascendente até o fim do período eleitoral.
+
+A figura \@ref(fig:CEEAc) apresenta o total agregado de KWh consumidos nos anos de 2016 a 2021.
+
+```{r CEEAc,fig.width= 7,fig.asp=0.65,fig.cap="6.1 - CEE - acumulados anuais - 2016 a 2022",echo = FALSE, message = FALSE}
+
+d |> group_by(ano) |> summarise(cee = sum(cee)) |>  
+  ggplot(mapping=aes(x=ano, y=cee, fill =ano)) + geom_bar(stat='identity')+ theme_classic()+
+  geom_label_repel(aes(label=format(cee, big.mark = ".",digits = 2, nsmall = 1),
+                       fill= ano, fontface="bold"),
+                   color = "white", vjust=0, hjust = "center", size =3)+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+ylab(
+    expression(atop("Consumo bruto anual"~CEE,"(KWh)"))) + xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+
+```
