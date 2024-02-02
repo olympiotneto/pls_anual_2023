@@ -37,3 +37,16 @@ d <- data |>
 #                       ordered = TRUE)
 
 write_rds(d,"data/dado_mensal.RDS")
+
+
+#Dados anuais
+
+d_anual <- data |>
+  filter(periodicidade == "Anual") |>
+  select(ano, acap:vd) |>
+  mutate(ano = fct(as.character(ano),
+                         levels = c("2021","2022","2023")) )
+
+write_rds(d_anual,"data/dado_anual.RDS")
+
+

@@ -10,7 +10,7 @@ format:
     include-in-header: 
       text: 
         \usepackage{typearea}
-        \setkeys{Gin}{width=0.99\linewidth}
+        \setkeys{Gin}{width=1.15\linewidth}
         \setlength{\parskip}{12pt}
         \setlength{\parindent}{30pt}
   
@@ -59,6 +59,12 @@ knitr::opts_chunk$set(number_sections = FALSE)
 
 d <- read_rds("data/dado_mensal.RDS")
 
+#Cria CRE e CRA
+d <- d |> 
+  mutate(cre = cee/mtotal,
+         cra = ca/mtotal,
+         gre = gee/mtotal,
+         gra = ga/mtotal)
 
 
 
@@ -103,7 +109,8 @@ FunVar <- function(d,indic, Soma = TRUE)
   list(Indicador = IND, Ind_Var=IND_var)
 }
 
-
+#Leitura os dados anuais
+d_anual <- read_rds("data/dado_anual.RDS")
 ```
 
 # Objetivo
@@ -728,9 +735,8 @@ GAER <- FunVar(d=d,indic = gaer)
 
 Os gastos anuais com água mineral envasada em embalagens retornáveis em 2023 foi de R\$ `r format(GAER$Indicador[2], big.mark=".", nsmall=2)` e no decorrer do ano de 2021, R\$ `r format(GAER$Indicador[1], big.mark=".", nsmall=2)`. A comparação entre esses dois anos resultou no **aumento** de `r abs(round(GAER$Ind_Var,1))`% no gasto com água mineral em embalagens retornáveis.
 
-```{=tex}
 \newpage
-```
+
 # Impressão (Item 5)
 
 Nos indicadores referentes ao **Item 5 - Impressão**, somente a variável que quantifica a quantidade de impressões é mensurada mensalmente, denominada de *Quantidade de Impressões (QI)*.
@@ -820,14 +826,13 @@ QI <- FunVar(d=d,indic = qi)
 
 Em 2023 foram realizadas `r format(QI$Indicador[2], big.mark=".")` impressões, enquanto em 2021 `r format(QI$Indicador[1], big.mark=".")` de modo que, então, observa-se um **aumento** de `r abs(round(QI$Ind_Var,1))`% no período analisado.
 
-```{=tex}
 \newpage
-```
+
 # Energia Elétrica (Item 6)
 
 Os resultados relativos ao item 6 - Energia elétrica serão apresentados utilizando os indicadores *6.1 - CEE - Consumo de Energia Elétrica* e *6.3 - GE - Gasto com energia elétrica* e seus respectivos valores relativos à área construída do TRE.
 
-## Consumo de Energia Elétrica (6.1 - CEE)
+## Consumo de energia elétrica (6.1 - CEE)
 
 **Definição**: consumo total de energia elétrica fornecida pela concessionária.
 
@@ -839,7 +844,7 @@ A @tbl-tabcee apresenta a evolução mensal desde 2021.
 #| echo: false
 #| warning: false
 #| label: tbl-tabcee
-#| tbl-cap: Indicador 6.1 - Consumo de Energia Elétrica (CE)
+#| tbl-cap: Indicador 6.1 - Consumo de energia elétrica (CE)
 #| 
 d |> 
 select(ano, mes, cee) |> 
@@ -870,7 +875,7 @@ filter(d,ano %in% c("2021","2023")) |>
   geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
   geom_label_repel(aes(label=format(cee, big.mark = "."),
-                       fill= ano, fontface="bold"), color="white")+
+                       fill= ano, fontface="bold"), color="white", size=2)+
   scale_color_manual(values = assec_colors[c(1,4)])+
   scale_fill_manual(values = assec_colors[c(1,4)])+
   scale_y_continuous(name="CEE\n(Kwh)", 
@@ -886,21 +891,557 @@ CEE <- FunVar(d=d,indic = cee)
 
 ```
 
-O gráfico \@ref(fig:gCEE) representa a evolução do consumo total de energia elétrica pelo TRE-SP. Durante o ano de 2020 foram consumidos acumuladamente `r format(CEE$Indicador[1], big.mark=".", nsmall=1)` KWh, e em 2022, `r format(CEE$Indicador[2], big.mark=".", nsmall=1)` KWh. Assim, observa-se que houve **redução** de `r abs(round(CEE$Ind_Var,1))`% no consumo no período em estudo. Observa-se que, com o retorno dos trabalhos semi-presenciais em meados de 2022, o consumo de energia tem tendência ascendente até o fim do período eleitoral.
+A @fig-gcee representa a evolução do consumo total de energia elétrica pelo TRE-SP. Durante o ano de 2021 foram consumidos acumuladamente `r format(CEE$Indicador[1], big.mark=".", nsmall=1)` KWh,e em 2023, `r format(CEE$Indicador[2], big.mark=".", nsmall=1)` KWh. Assim, observa-se que houve **incremento** de `r abs(round(CEE$Ind_Var,1))`% entre esses dois períodos. Observa-se que há redução no consumo nos meses mais frios do ano, como é esperado.
 
-A figura \@ref(fig:CEEAc) apresenta o total agregado de KWh consumidos nos anos de 2016 a 2021.
+A @fig-gceeac apresenta o total agregado de KWh consumidos nos anos de 2021 a 2023. A tendência é de crescimento no consumo com o fim do teletrabalho totalmente remoto.
 
-```{r CEEAc,fig.width= 7,fig.asp=0.65,fig.cap="6.1 - CEE - acumulados anuais - 2016 a 2022",echo = FALSE, message = FALSE}
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gceeac
+#| fig-cap: 6.1 - CEE - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
 
-d |> group_by(ano) |> summarise(cee = sum(cee)) |>  
-  ggplot(mapping=aes(x=ano, y=cee, fill =ano)) + geom_bar(stat='identity')+ theme_classic()+
+d |> 
+  group_by(ano) |> 
+  summarise(cee = sum(cee)) |>  
+  ggplot(mapping=aes(x=ano, y=cee, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
   geom_label_repel(aes(label=format(cee, big.mark = ".",digits = 2, nsmall = 1),
                        fill= ano, fontface="bold"),
                    color = "white", vjust=0, hjust = "center", size =3)+
   scale_color_manual(values = assec_colors)+
-  scale_fill_manual(values = assec_colors)+ylab(
-    expression(atop("Consumo bruto anual"~CEE,"(KWh)"))) + xlab("Ano")+
+  scale_fill_manual(values = assec_colors)+
+  ylab(expression(atop("Consumo bruto anual"~CEE,"(KWh)"))) + xlab("Ano")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+
+```
+
+## Consumo relativo de energia elétrica por $m^{2}$ (6.2 - CRE)
+
+**Definição**: consumo total de energia elétrica fornecida pela concessionária em relação à área total do órgão.
+
+**Unidade de medida**: $kWh/m^{2}$
+
+Periodicidade da apuração: mensal
+
+**Fórmula**: $$ CRE = \frac{CEE}{m^{2}~Total}$$ onde:
+
+-   CEE -- Consumo de energia elétrica;
+
+-   $m^{2}$ Total -- Área total em metros quadrados (informado no Justiça em Números).
+
+A apuração do *CRE* é dependente da áreas prediais das unidades pertencentes ao órgão. Essa informação é apurada anualmente pela **SGS** e lançada no Justiça em Números.
+
+A área total abarcada pelas unidades do TRE-SP ($m^{2}$) e o CRE ($kWh/m^{2}$) de 2021 e 2023 (*dado referente a 2022, pois não está disponível, até essa data, a mensuração referente ao ano 2023*), como informado no Justiça em Números, é apresentada na @tbl-tabm2t. Os resultados referentes ao indicados nos anos de 2021 a 2023 são disponibilizados na @tbl-tabcre.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabm2t
+#| tbl-cap: Área total das Unidades do TRE-SP
+#| 
+
+d_anual|>  
+  select(ano,mtotal) |>  
+  flextable()|>  
+  align(align = "center",part = "all")|> 
+  bold(bold = TRUE, part = "header")|> 
+  valign( valign = "center", part = "all")|> 
+  set_header_labels (ano = "Ano")|>
+  compose(i = 1, j = 2, part = "header",
+              value = as_paragraph("m", as_sup("2"))) |> 
+  autofit()
+```
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabcre
+#| tbl-cap: 6.2 - Consumo relativo de energia elétrica (CRE)
+#| 
+
+
+teste <- d |> 
+  select(ano, mes, cre) |> 
+  spread(ano,cre) 
+teste|> 
+  bind_rows( 
+    teste |> 
+    summarise(mes="Média", across(-mes, mean))
+    ) |> 
+  flextable() |> 
+  colformat_double(digits=2) |> 
+valign( valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  #set_caption( "6.4 - GRE")  |> 
+  bold(bold = TRUE, part = "header") |>
+  set_header_labels(mes="Mês") |> 
+  bold(bold = TRUE, i = 13) |> 
+  add_footer_lines("A área total considerada em 2023 foi o valor 
+                   informado em 2022 no JN") |> 
+  autofit()
+
+```
+
+```{r}
+#| echo: false
+
+CRE <- FunVar(d = d ,cre,Soma = FALSE)
+
+```
+
+O *Consumo relativo médio de Energia Elétrica por* $m^{2}$, $CRE$ de 2023, foi apurado em `r format(CRE$Indicador[2], big.mark=".", nsmall=2,digits=2)` $kWh/m^{2}$, enquanto o valor desse indicador em 2021 foi de `r format(CRE$Indicador[1], big.mark=".", nsmall=2,digits=2)` $kWh/m^{2}$. A comparação desses anos aponta um **incremento** de `r abs(round(CRE$Ind_Var,1))`% no consumo relativo médio de energia elétrica. Os resultados referentes ao indicador nos anos de 2021 e 2023 estão representados na @fig-gcre.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gcre
+#| fig-cap: 6.2 - Consumo relativo de energia elétrica (CRE)  - 2021 e 2023
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=cre, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(cre, big.mark = ".",digits=3),fill= ano, fontface="bold"), color="white", size = 2)+
+  scale_color_manual(values = assec_colors[c(1,4)])+
+  scale_fill_manual(values = assec_colors[c(1,4)])+
+  scale_y_continuous(name=expression(atop("CRE",~KWh/m^{2}~Total)), 
+                     labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
+  xlab("Mês")
+
+```
+
+## Gasto com energia elétrica (6.3 - GEE)
+
+**Definição**: valor da fatura de energia elétrica, em valores brutos. Considera-se evento gerador o mês de competência (ao qual a fatura corresponde).
+
+**Unidade de medida**: Reais
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabgee
+#| tbl-cap: Indicador 6.3 - Gasto com energia elétrica (GEE)
+#| 
+
+d |> 
+  select(ano, mes, gee) |> 
+  spread(ano,gee) |>
+  janitor::adorn_totals("row") |> 
+  flextable() |> 
+  colformat_double(digits = 2) |> 
+  align(align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  valign( valign = "center", part = "all") |> 
+  bold(bold = TRUE, i = 13) |>
+  set_header_labels(mes = "Mês") |> 
+  autofit()
+
+
+```
+
+<br>
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggee
+#| fig-cap: 6.3 - GEE  - 2021 e 2023
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=gee, group = ano))+ theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(gee, big.mark = ".",digits=2,nsmall=2),
+                       fill= ano, fontface="bold"),
+                   color="white",size=2)+
+  scale_color_manual(values = assec_colors[c(1,4)])+
+  scale_fill_manual(values = assec_colors[c(1,4)])+
+  #Aqui retira o formato de nzmero científico
+  scale_y_continuous(name="GEE\n(R$)", labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
+  xlab("Mês")
+
+```
+
+No gráfico representando a evolução mensal dos gastos de energia ( @fig-ggee ), nota-se que os gastos de 2023 seguem a tendência parecida aos valores pagos em 2021, embora todos os valores do ano passado sejam sempre superiores aos de 2021.
+
+```{r}
+#| echo: false
+
+GE <- FunVar(d=d,indic = gee)
+```
+
+Os gastos totais anuais em Energia Elétrica, expressos em Reais, resultam nos valores de R\$ `r format(GE$Indicador[1], big.mark=".", nsmall=2)` e R\$ `r format(GE$Indicador[2], big.mark=".", nsmall=2)` para os anos de 2021 e 2023, respectivamente. A comparação indica que houve **incremento** de `r abs(round(GE$Ind_Var,1))`% no valor pago à título de consumo de energia elétrica às concessionárias.
+
+A @fig-ggeeac indica o gasto acumulado de energia elétrica nos anos de 2021 a 2023.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggeeac
+#| fig-cap: 6.3 - GEE - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+
+d |> 
+  group_by(ano) |> 
+  summarise(gee = sum(gee)) |>  
+  ggplot(mapping=aes(x=ano, y=gee, fill=ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
+  geom_label(aes(label=format(gee, big.mark = ".",digits = 2, nsmall = 3), 
+                 fill= ano, fontface="bold"),color="white", size=2)+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+ylab(
+    expression(atop("Gasto com energia anual"~GEE,"(R$)"))) + xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+
+```
+
+## Gasto relativo com energia elétrica por $m^{2}$ (6.4 - GRE)
+
+**Definição**: valor total das faturas de energia elétrica, em valores brutos, em relação à área total do órgão. Considera-se evento gerador o mês de competência (ao qual a fatura corresponde)
+
+**Unidade de medida**: $R\$/m^{2}$
+
+Periodicidade da apuração: anual
+
+**Fórmula**: $$ GRE = \frac{GEE}{m^{2}~Total}$$ onde:
+
+-   GEE -- Gasto com energia elétrica;
+-   $m^{2}$ Total -- Área total em metros quadrados (informado no Justiça em Números).
+
+A apuração do GRE é dependente da áreas prediais das unidades pertencentes a este TRE. Essa informação é apurada anualmente pela **SGS** e informada no Justiça em Números. A @tbl-tabm2t , já apresentada nesse relatório, indica a evolução da área total do TRE.
+
+A tabela @tbl-tabgre apresenta gasto relativo de energia elétrica (GRE) apurado de 2021 a 2023
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabgre
+#| tbl-cap: Indicador 6.4 - Gasto relativo com energia elétrica (GRE)
+#| 
+
+teste <- d |> 
+  select(ano, mes, gre) |> 
+  spread(ano,gre) 
+teste|> 
+  bind_rows( 
+    teste |> 
+    summarise(mes="Média", across(-mes, mean))
+    ) |> 
+  flextable() |> 
+  colformat_double(digits=2) |> 
+valign( valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  #set_caption( "6.4 - GRE")  |> 
+  bold(bold = TRUE, part = "header") |>
+  set_header_labels(mes="Mês") |> 
+  bold(bold = TRUE, i = 13) |> 
+  add_footer_lines("A área total considerada em 2023 foi o valor 
+                   informado em 2022 no JN") |> 
+  autofit()
+
+
+```
+
+<br>
+
+```{r}
+#| echo: false
+GRE <- FunVar(d,gre,Soma = FALSE)
+
+```
+
+O *gasto relativo médio com energia elétrica*, GRE de 2023 foi apurado em `r format(GRE$Indicador[2], big.mark=".", nsmall=2,digits=2)` $R\$/m^{2}$, enquanto o valor dessa variável foi de `r format(GRE$Indicador[1], big.mark=".", nsmall=2,digits=2)` $R\$/m^{2}$ em 2021. A comparação destes anos indica um **incremento** de `r abs(round(GRE$Ind_Var,1))`% no gasto relativo com energia elétrica por $m^{2}$. A comparação desse indicador nos anos de 2021 e 2023 é apresentada na @fig-ggre.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggre
+#| fig-cap: 6.4 - GRE - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=gre, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(gre, big.mark = ".",digits=2),fill= ano, fontface="bold", size=2), color="white", size=2)+
+  scale_color_manual(values = assec_colors[c(1,4)])+
+  scale_fill_manual(values = assec_colors[c(1,4)])+
+  #Aqui retira o formato de nzmero cientmfico
+  scale_y_continuous(name=expression(atop("GRE",~"R/$"/m^{2}~Total)), 
+                     labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
+  xlab("Mês")
+```
+
+\newpage
+
+# Água e Esgoto (Item 7)
+
+Os resultados relativos ao **Item 7 - Água e Esgoto** serão apresentados utilizando os indicadores *7.1 - CA -- Consumo de água* e *7.3 - GA -- Gasto com água*, bem como os indicadores relativos referentes ao consumo e gasto por $m^{2}$. Devem ser considerados todos os edifícios e unidades que compõem o órgão. Não houve alterações nesses indicadores na resolução vigente.
+
+## Consumo de água (7.1 - CA)
+
+**Definição**: consumo total de água fornecida pela concessionária.
+
+**Unidade de medida**: $m^3$
+
+A @tbl-tabca indica o consumo mensal de água em $m^{3}$ nos três anos de vigência da Resolução Nº 400/2021 do CNJ. Já, a @fig-gca apresenta a comparação do registro mensal do indicador nos dois anos não eleitorais, 2021 e 2023.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabca
+#| tbl-cap: Indicador 7.1 - Consumo de água (CA)
+#| 
+
+#Tabela CA
+d |> 
+  select(ano, mes, ca) |> 
+  spread(ano,ca) |>
+  janitor::adorn_totals("row") |> 
+  flextable() |> 
+  colformat_double(digits = 0)  |> 
+  set_header_labels(mes = "Mês") |> 
+  align(align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  valign( valign = "center", part = "all") |> 
+  bold(bold = TRUE, i = 13) |>  
+  autofit()
+
+
+```
+
+<br>
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gca
+#| fig-cap: 7.1 - CA - 2021 e 2023
+#| fig-cap-location: bottom
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=ca, group = ano))+ theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(ca, big.mark = "."),
+                       fill= ano, fontface="bold"), color="white")+
+  scale_color_manual(values = assec_colors[c(5,2)])+
+  scale_fill_manual(values = assec_colors[c(5,2)])+
+  #Aqui retira o formato de nzmero científico
+  scale_y_continuous(name=expression("CA"~(m^{3})), 
+                     labels = function(x) format(x, big.mark = ".", 
+                                                 scientific = FALSE))+ 
+  xlab("Mês")
+
+```
+
+```{r CA_calc, echo=FALSE,include=FALSE}
+#| echo: false
+
+CA <- FunVar(d=d,indic = ca)
+
+```
+
+O volume total de água consumida em 2021foi `r format(CA$Indicador[1], big.mark=".",nsmall=1)` $m^3$, resultado ainda impactado pela pandemia, e `r format(CA$Indicador[2], big.mark=".",nsmall=1)` $m^3$ em 2023, com teletrabalho híbrido já estabelecido, e por isso, entre 2021 e 2023, houve **aumento** de `r abs(round(CA$Ind_Var,1))`% no consumo anual de água.
+
+O consumo anual pode ser visto no gráfico \@ref(fig:caAc) a seguir.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gcaac
+#| fig-cap: 7.1 - CA - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+
+d |> 
+  group_by(ano) |> 
+  summarise(ca = sum(ca)) |>  
+  ggplot(mapping=aes(x=ano, y=ca, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
+  geom_label_repel(aes(label=format(ca, big.mark = ".",digits = 2, nsmall = 1), fill= ano, fontface="bold"),
+                   color="white",vjust=0)+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+ylab(
+    expression(atop("Consumo anual de água "~CA,(m^{3})))) + 
+  xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+## Consumo relativo de Água (7.2 - CRA)
+
+**Definição**: consumo total de água fornecida pela concessionária em relação à área total do órgão.
+
+**Unidade de medida**: $m^{3}/m^{2}$
+
+Periodicidade da apuração: anual
+
+**Fórmula**: $$CRA = \frac{CA}{m^{2}~Total}$$ onde:
+
+-   $CA$ -- Consumo de água;
+-   $m^{2}$ Total -- Área total em metros quadrados (informado no Justiça em Números).
+
+A apuração do CRA é dependente da áreas prediais das unidades pertencentes a este TRE. Essa informação é apurada anualmente pela **SGS** e informada no Justiça em Números. A @tbl-tabm2t apresenta a evolução da área total do TRE[^1].
+
+[^1]: Dado referente a 2022, pois não está disponível, até essa data, a mensuração referente ao ano 2023
+
+A @tbl-tabcra apresenta o consumo relativo histórico desde 2021.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabcra
+#| tbl-cap: 7.2 - Consumo relativo de água (CRA)
+#| 
+teste <- d |> 
+  select(ano, mes, cra) |> 
+  spread(ano,cra) 
+teste|> 
+  bind_rows( 
+    teste |> 
+    summarise(mes="Média", across(-mes, mean))
+    ) |> 
+  flextable() |> 
+  colformat_double(digits=4) |> 
+valign( valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  #set_caption( "6.4 - GRE")  |> 
+  bold(bold = TRUE, part = "header") |>
+  set_header_labels(mes="Mês") |> 
+  bold(bold = TRUE, i = 13) |> 
+  autofit()
+```
+
+<br>
+
+```{r CRA_calc, echo=FALSE,include=FALSE}
+#| echo: false
+
+#Media
+CRA <- FunVar(d,cra,Soma = FALSE)
+```
+
+O *Consumo relativo de água* é apresentado na @fig-gcra. O CRA médio de 2023 foi apurado em `r format(CRA$Indicador[2], big.mark=".", nsmall=2,digits=2)` $m^{3}/m^{2}$, enquanto o valor desse indicador foi de `r format(CRA$Indicador[1], big.mark=".", nsmall=2,digits=2)` $m^{3}/m^{2}$ em 2021. A comparação resulta no **aumento** de `r abs(round(CRA$Ind_Var,1))`% do consumo relativo de água.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gcra
+#| fig-cap: 7.2 - Consumo relativo de água  - 2021 e 2023
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=cra, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=2)+
+  geom_label_repel(aes(label=format(cra, big.mark = ".",
+                                    digits=2),fill= ano, fontface="bold"), 
+                   color="white", size =2)+
+  scale_color_manual(values = assec_colors[c(2,3)])+
+  scale_fill_manual(values = assec_colors[c(2,3)])+
+  #Aqui retira o formato de número científico
+  scale_y_continuous(name=expression(atop("CRA",~m^{3}/m^{2}~Total)), 
+                     labels = function(x) format(x, big.mark = ".", 
+                                                 scientific = FALSE))+ 
+  xlab("Mês")
+```
+
+O consumo relativo médio de água em 2023 foi superior em todos os meses em comparação com 2021.
+
+## Gasto com água (7.3 - GA)
+
+**Definição**: valor da fatura de água e esgoto, em valores brutos. Considera-se evento gerador o mês de competência (ao qual a fatura corresponde).
+
+**Unidade de medida**: Reais
+
+A seguir serão apresentados o histórico de dados e a evolução gráfica dos gastos com água e esgoto do TRE-SP.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabga
+#| tbl-cap: Indicador 7.3 - Gasto com água (CA)
+#|
+
+d |> select(ano, mes, ga) |> 
+  spread(ano,ga) |>
+  janitor::adorn_totals("row")|> 
+  flextable() |> 
+  colformat_double(digits=2)  |> 
+  set_header_labels(mes = "Mês") |> 
+  align(align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  valign( valign = "center", part = "all") |> 
+  bold(bold = TRUE, i = 13) |>  
+  autofit()
+
+```
+
+<br>
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gga
+#| fig-cap: 7.3 - GA - 2021 e 2023
+#| fig-cap-location: bottom
+
+filter(d,ano %in% c("2021","2023")) |> ggplot(aes(x=mes,y=ga, group = ano))+ theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(ga, big.mark = ".",digits=2,nsmall=2),fill= ano, fontface="bold"), 
+                   color="white",size=2.5)+
+  scale_color_manual(values = assec_colors[c(2,3)])+
+  scale_fill_manual(values = assec_colors[c(2,3)])+
+  #Aqui retira o formato de nzmero cientmfico
+  scale_y_continuous(name="GA\n(R$)", labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
+  xlab("Mês")
+```
+
+```{r GA_calc, echo=FALSE,include=FALSE}
+#| echo: false
+# variação 2019-2021
+GA <- FunVar(d=d,indic = ga)
+
+```
+
+O gasto com água nos anos de 2021 e 2023 pode ser visto na @fig-gga. Com relação aos valores acumulados, o gasto em 2021 foi de R\$ `r format(GA$Indicador[1], big.mark=".",nsmall=2)`, R\$ e `r format(GA$Indicador[2], big.mark=".",nsmall=2)` em 2023. Na comparação houve **aumento** de `r abs(round(GA$Ind_Var,1))`% no gasto total entre esses dois períodos do estudo, ou seja, quase dobra o valor acumulado nos anos analisados.
+
+A @fig-ggaac indica o gasto acumulado com o pagamento de faturas de água e esgoto anos de 2021 a 2023.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggaac
+#| fig-cap: 7.3 - GA - acumulados anuais - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+
+d |> 
+  group_by(ano) |> 
+  summarise(ga = sum(ga)) |>  
+  ggplot(mapping=aes(x=ano, y=ga, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
+  geom_label(aes(label=format(ga, big.mark = ".",
+                              digits = 2, nsmall = 2), 
+                 fill= ano, fontface="bold"),
+             color="white",vjust=2,size=3.5)+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+ylab(
+    expression(atop("Consumo anual de água"~GA,"(R$)"))) + 
+  xlab("Ano")+
+  scale_y_continuous(
+    labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 
 ```
