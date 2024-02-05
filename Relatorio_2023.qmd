@@ -64,7 +64,8 @@ d <- d |>
   mutate(cre = cee/mtotal,
          cra = ca/mtotal,
          gre = gee/mtotal,
-         gra = ga/mtotal)
+         gra = ga/mtotal,
+         tmr = dpa + dpl + dmt + dvd + cge)
 
 
 
@@ -1444,4 +1445,426 @@ d |>
     labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 
+```
+
+## Gasto relativo com água (7.4 - GRA)
+
+**Definição**: valor da fatura de água e esgoto, em valores brutos, em relação à área total do órgão. Considera-se evento gerador o mês de competência (ao qual a fatura corresponde).
+
+**Unidade de medida**: $R\$/m^{2}$
+
+Periodicidade da apuração: anual
+
+**Fórmula**: $$ GRA = \frac{GA}{m^{2}~Total}$$ onde:
+
+-   $GA$ -- Gasto com água;
+-   $m^{2}$ Total -- Área total em metros quadrados (informado no Justiça em Números).
+
+A apuração das áreas prediais das unidades pertencentes a este TRE é informada anualmente pela **SGS** e inseridas no Justiça em Números. A tabela \@ref(tab:tabm2Tt) apresenta a evolução da área total das unidades desse órgão.
+
+A @tbl-tabgra apresenta o consumo histórico desde 2021.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabgra
+#| tbl-cap: 7.4 - Gasto relativo com água (GRA)
+#| 
+teste <- d |> 
+  select(ano, mes, gra) |> 
+  spread(ano,gra) 
+teste|> 
+  bind_rows( 
+    teste |> 
+    summarise(mes="Média", across(-mes, mean))
+    ) |> 
+  flextable() |> 
+  colformat_double(digits=2) |> 
+valign( valign = "center", part = "all") |> 
+  align(align = "center",part = "all") |>
+  #set_caption( "6.4 - GRE")  |> 
+  bold(bold = TRUE, part = "header") |>
+  set_header_labels(mes="Mês") |> 
+  bold(bold = TRUE, i = 13) |> 
+  autofit()
+
+```
+
+<br>
+
+```{r GRA_calc, echo=FALSE,include=FALSE}
+#| echo=FALSE
+#Comparação
+
+#Media
+GRA <- FunVar(d,gra,Soma = FALSE)
+
+```
+
+O *gasto relativo com água por* $m^{2}$ dos anos de 2021 e 2023 é apresentado na @fig-ggra . O gasto relativo médio de 2023 foi apurado em `r format(GRA$Indicador[2], big.mark=".", nsmall=2,digits=2)` $R\$/m^{2}$, enquanto o valor médio desse indicador foi de `r format(GRA$Indicador[1], big.mark=".", nsmall=2,digits=2)` $R\$/m^{2}$ em 2021. A comparação entre esses anos indica o **aumento** de `r abs(round(GRA$Ind_Var,1))`% no gasto relativo médio com água por $m^{2}$.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggra
+#| fig-cap: 7.4 - Gasto relativo com água  - 2021 e 2023
+
+filter(d,ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=gra, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(gra, big.mark = ".",digits=2),fill= ano, fontface="bold"), color="white")+
+  scale_color_manual(values = assec_colors[c(2,3)])+
+  scale_fill_manual(values = assec_colors[c(2,3)])+
+  #Aqui retira o formato de número científico
+  scale_y_continuous(name=expression(atop("GRA",~"R$"/m^{2}~Total)), 
+                     labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
+  xlab("Mês")
+
+```
+
+\newpage
+
+# Gestão de Resíduos (Item 8)
+
+Os resultados relativos ao **Item 8 - Gestão de Resíduos** serão representados pelo indicador *8.6 - TMR -- Total de materiais destinados à reciclagem*, que resume a gestão de resíduos apurada mensalmente pelo órgão. O TRE vem informando sistematicamente os indicadores *8.3 -DMT - Destinação de metais* e *8.5 -CGe - Coleta geral*. Os outros indicadores de periodicidade mensal, *DPa*, *DPl* e *DVd* são englobados no *8.5 - CGe,* e por isso, uma boa maneira de sintetizar os resultados, é analisar o **TMR** que é o somatório das variáveis de interesse.
+
+## Total de Materiais destinados à reciclagem (8.6 - TMR)
+
+*Definição*: soma dos resíduos recicláveis destinados a cooperativas, associações de catadores e empresas recicladoras
+
+**Unidade de medida**: quilogramas (kg)
+
+**Fórmula**: $$ TMR = DPa + DPl + DMt + DVD + CGe $$ onde:
+
+-   DPa: Destinação de papel para reciclagem;
+-   DPl: Destinação de plásticos para reciclagem;
+-   DMt: Destinação de metais para reciclagem;
+-   DVd: Destinação de vidros para reciclagem e;
+-   CGe: Coleta geral.
+
+A @tbl-tabtmr apresenta os valores dos indicadores que formam o *TMR* nos anos em análise, 2021 e 2023.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabtmr
+#| tbl-cap: Indicador 8.6 - Total de material para reciclagem
+#| 
+
+d |> 
+  select(mes,ano,dpa, dpl, dmt, dvd,cge,tmr) |> 
+  mutate(Mes = paste(mes,"/",ano,sep="")) |> 
+  select(-mes,-ano) |> 
+  relocate(Mes,.before = dpa) |> 
+  rename( "Dpa" = `dpa`,"Dpl"=`dpl`,"Dmt"=`dmt`,
+          "Dvd"=`dvd`,"Cge"=`cge`,"TMR"=`tmr`) |> 
+  # janitor::adorn_totals("row") |> 
+  flextable() |> 
+  colformat_double(j=c(2:7),big.mark=".", 
+                   decimal.mark = ",",digits=0)  |> 
+  align(j=1, align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  set_header_labels(Mes = "Mês") |> 
+  # bold(bold = TRUE, i = 37) |> 
+  valign(valign = "center", part = "all") |>
+  autofit()
+
+
+```
+
+Como já foi mencionado, o TRE não mensura individualmente os resíduos plásticos, vidro e papel por problemas pontuais, englobando-os na variável *8.5 - Coleta Geral (CGe)* .
+
+A @fig-gtmr indica a evolução da variável *TMR* nos anos de 2021 e 2023.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-gtmr
+#| fig-cap: 8.6 - TMR - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+
+d |> filter(ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=tmr, group = ano))+ theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(tmr, big.mark = "."), 
+                       fill= ano, fontface="bold"), color="white",size = 2.5)+
+  scale_color_manual(values = assec_colors[c(5,2)])+
+  scale_fill_manual(values = assec_colors[c(5,2)])+
+  #Aqui retira o formato de nzmero cientmfico
+  scale_y_continuous(name= "TMR\n(Kg)", 
+                     labels = function(x) format(x, big.mark = ".", scientific = FALSE))+
+  xlab("Mês")
+
+```
+
+```{r}
+#| echo: false
+TMR <- FunVar(d=d,indic = tmr)
+
+```
+
+Os valores acumulados do indicador TMR em 2021 e 2023 foram, respectivamente, `r format(TMR$Indicador[1], big.mark=".", digits = 2, nsmall=1)` Kg e `r format(TMR$Indicador[2], big.mark=".", digits = 2, nsmall = 1)` Kg, de modo que foi observada o **incremento** de `r abs(round(TMR$Ind_Var,1))`%, impactado pelo retorno ao trabalho presencial (ainda qu híbrido).
+
+Sintetizando, a @tbl-tabcomptmr a seguir apresenta o histórico do total anual dos indicadores de coleta de resíduos, a saber, *DPa*, *DPl,* *DMt*, *DVd*, *CGe* e o consolidado, o próprio TMR para os anos de 2021 a 2023.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabcomptmr
+#| tbl-cap: Indicadores de coletas de resíduos - Totais Anuais (kg)
+#| 
+
+#Tabela geral com os indicadores que formam a TMR
+
+d |>  
+  select(ano,dpa, dpl, dmt, dvd,cge, tmr) |>
+  group_by(ano) |>
+  summarise_all(.funs = function(x)sum(x,na.rm=TRUE)) |> 
+  rename("Dpa" = `dpa`,"Dpl"=`dpl`,"Dmt"=`dmt`,
+         "Dvd"=`dvd`,"Cge"=`cge`, "TMR" = `tmr`) |> 
+  flextable() |> 
+  colformat_double(j=c(2:7),big.mark=".",digits=0)  |>
+  colformat_double(j=1 , big.mark="",digits=0) |> 
+  align(align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  bold(j = c(7),bold = TRUE) |> 
+  valign(valign = "center", part = "all") |>  
+  autofit()
+
+
+```
+
+\newpage
+
+# Telefonia (Item 12)
+
+Os resultados relativos ao **Item 12 -** **Telefonia** serão apresentados e resumidos pelos indicadores *12.3 - GRTF -- Gasto relativo com telefonia fixa* e *12.6 - GRTM -- Gasto relativo com telefonia móvel*.
+
+## Gasto relativo com telefonia fixa (12.3 - GRTF)
+
+**Definição**: despesa realizada com serviços de telefonia fixa, inclusive tecnologia VoIP, em relação ao total de linhas. Considera-se evento gerador o mês de competência (ao qual a fatura corresponde).
+
+**Unidade de medida**: reais / linha telefônica fixa.
+
+**Fórmula**: $$ GRTF = \frac{GTF}{LTF}$$ onde:
+
+-   GTF -- Gasto total com telefonia fixa e;
+-   LTF -- Linhas telefônicas fixas.
+
+<br>
+
+O número de linhas fixas (LTF), bem como o gasto com essas linhas (GTF), em reais, no período analisado de 2021 e 2023, são apresentados na @tbl-tabltfgtf.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabltfgtf
+#| tbl-cap: Indicadores LTF - linha telefônica fixa e GTF - gastos com telefonia fixa
+#| 
+
+d  |> 
+  filter(ano %in% c(2021,2023)) |> 
+  select(mes_ano,ltf,gtf) |> 
+  # mutate(Mês = paste(mes,"/",ano,sep="")) |> 
+  # select(-mes,-ano) |> 
+  # relocate(Mês,.before = ltf) |> 
+rename( "LTF" = `ltf`,"GTF"=`gtf`) |> 
+flextable() |> 
+  # set_caption("Indicadores LTF e GTF") |> 
+  align(j=1, align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  valign(valign = "center", part = "all") |>
+  set_header_labels(mes_ano = "Mês/Ano") |> 
+  autofit()
+
+
+```
+
+A @tbl-tabgrtf apresenta o cálculo do indicador relativo de gastos com linhas telefônicas fixas desde 2021.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: tbl-tabgrtf
+#| tbl-cap: Indicador 12.3 - Gasto relativo com telefonia fixa
+
+teste <- d |>
+  select(ano, mes, grtf) |>
+  spread(ano,grtf)
+teste|>
+  bind_rows(
+    teste |>
+    summarise(mes="Média", across(-mes, mean))
+    ) |>
+  flextable() |>
+  colformat_double(digits=2) |>
+valign( valign = "center", part = "all") |>
+  align(align = "center",part = "all") |>
+  #set_caption( "6.4 - GRE")  |>
+  bold(bold = TRUE, part = "header") |>
+  set_header_labels(mes="Mês") |>
+  bold(bold = TRUE, i = 13) |>
+  autofit()
+
+
+
+```
+
+A evolução do indicador GRTF nos anos em análise é apresentada na @fig-ggrtf .
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggrtf
+#| fig-cap: 12.3 - Gasto relativo com telefonia fixa - 2021 e 2023
+#| fig-cap-location: bottom
+#| 
+
+d |> filter(ano %in% c("2021","2023")) |> 
+  ggplot(aes(x=mes,y=grtf, group = ano))+ 
+  theme_classic()+
+  geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=2.5)+
+  geom_label_repel(aes(label=format(grtf, big.mark = ".",digits = 2, nsmall = 2), 
+                       fill= ano, fontface="bold"),color="white")+
+  scale_color_manual(values = assec_colors[c(4,6)])+
+  scale_fill_manual(values = assec_colors[c(4,6)])+
+  ylab(expression(atop(~GRTF,"(R$ \\ linha fixa)"))) + xlab("Mês")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+```{r GPRTf_calc, echo=FALSE,include=FALSE}
+#| echo: false
+
+GRTf <- FunVar(d=d,indic = grtf, Soma = FALSE)
+
+```
+
+O *gasto relativo médio de telefonia fixa* em 2023 foi cerca de R\$ `r format(GRTf$Indicador[2], big.mark=".", digits=2, nsmall=2)` e a média de 2021, R\$ `r format(GRTf$Indicador[1], big.mark=".", digits=2, nsmall=2)`, de modo que a *redução* de `r abs(round(GRTf$Ind_Var,1))`% foi observada.
+
+A evolução dos gastos médios com Telefonia fixa desde 2021 são demonstrados na figura \@ref(fig:grtfAc) a seguir.
+
+```{r}
+#| echo: false
+#| warning: false
+#| label: fig-ggrtfmed
+#| fig-cap: 12.3 - GRTF médio - 2021 a 2023
+#| fig-cap-location: bottom
+#| 
+
+d |> group_by(ano) |> 
+  summarise(grtf = mean(grtf)) |>  
+  ggplot(mapping=aes(x=ano, y=grtf, fill =ano)) + 
+  geom_bar(stat='identity')+ theme_classic()+
+  geom_label_repel(aes(label=format(grtf, big.mark = ".",digits = 2, nsmall = 2), fill= ano, fontface="bold"),
+                   color="white",vjust=0)+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+
+  ylab(expression(atop("Gasto médio anual "~GRTF,"(R$ \\ linha fixa)"))) + 
+  xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
+```
+
+## Gasto relativo com telefonia móvel (12.6 - GRTM)
+
+**Definição**: despesa realizada com pagamento das faturas de telefonia móvel em relação à quantidade de linhas móveis. São contabilizados gastos com voz, dados e assinatura. Considera-se evento gerador o mês de competência (ao qual a fatura corresponde).
+
+**Unidade de medida**: reais / linha telefônica fixa.
+
+**Fórmula**: $$ GRTM = \frac{GTM}{LTM}$$ onde:
+
+-   GTM -- Gasto total com telefonia móvel e;
+-   LTM -- Linhas telefônicas móvel.
+
+<br>
+
+O número de linhas móveis (LTM), bem como o gasto com essas linhas (GTM), em reais, no período analisado de 2020 e 2022, são apresentados na tabela \@ref(tab:tabLTMGTM). Observa-se que há um saldo expressivo no número de linhas móveis a partir de janeiro de 2022.
+
+```{r tabLTMGTM, echo=FALSE, paged.print=TRUE, results='asis'}
+
+#| echo: false
+#| warning: false
+#| label: tbl-tabltfgtf
+#| tbl-cap: Indicadores LTF - linha telefônica fixa e GTF - gastos com telefonia fixa
+#| 
+
+d  |> 
+  filter(ano %in% c(2021,2023)) |> 
+  select(mes_ano,ltf,gtf) |> 
+  # mutate(Mês = paste(mes,"/",ano,sep="")) |> 
+  # select(-mes,-ano) |> 
+  # relocate(Mês,.before = ltf) |> 
+rename( "LTF" = `ltf`,"GTF"=`gtf`) |> 
+flextable() |> 
+  # set_caption("Indicadores LTF e GTF") |> 
+  align(j=1, align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  valign(valign = "center", part = "all") |>
+  set_header_labels(mes_ano = "Mês/Ano") |> 
+  autofit()
+
+
+```
+
+A tabela \@ref(tab:tabGRTM) apresenta o cálculo do indicador relativo de gastos com linhas telefônicas móveisdesde 2016 até 2022.
+
+```{r tabGRTM, echo=FALSE, paged.print=TRUE, results='asis'}
+
+tabGRTM <- d |> select(ano, mes,grtm) |> spread(ano,grtm) |> 
+  rename(Mês = `mes`)
+tabGRTM |> mutate_if(is.numeric, format, big.mark=".", digits = 2, nsmall=2)|> flextable() |> 
+  set_caption( "12.6 - GRTM") |> 
+  align(align = "center",part = "all") |> 
+  bold(bold = TRUE, part = "header") |> 
+  valign( valign = "center", part = "all") |> 
+  autofit()
+
+```
+
+<br>
+
+A evolução do indicador GRTM nos anos em análise é apresentada na figura \@ref(fig:gGRTM). É interessante notar que, apesar do expressivo aumento do número de linhas móveis em 2022, houve redução do valor médio pago por linha telefônica ativa, resultado, provavelemente, na melhoria nos contratos com a operadora.
+
+```{r gGRTM, fig.width= 7,fig.asp=0.65,fig.cap="12.6 - GRTM - 2020 e 2022",echo=FALSE}
+
+filter(d,ano %in% c("2020","2022")) |> ggplot(aes(x=mes,y=grtm, group = ano))+ theme_classic()+
+  geom_line(aes(color=ano, 
+                linetype = ano),size = 1.1)+ 
+  geom_point(aes(fill = ano),shape=21, size=3)+
+  geom_label_repel(aes(label=format(grtm, big.mark = ".",digits = 2, nsmall = 2), 
+                       fill= ano, fontface="bold"),color="white")+
+  scale_color_manual(values = assec_colors[c(4,6)])+
+  scale_fill_manual(values = assec_colors[c(4,6)])+
+  ylab(expression(atop(~GRTM,"(R$ \\ linha msvel)"))) + xlab("Mês")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",digits = 2, nsmall = 2, 
+                                                 scientific = FALSE))
+```
+
+```{r GPRTM_calc, echo=FALSE,include=FALSE}
+
+GRTM <- FunVar(d=d,indic = grtm, Soma = FALSE)
+
+```
+
+O *gasto relativo médio de telefonia móvel* em 2022 foi cerca de R\$ `r format(GRTM$Indicador[2], big.mark=".", digits=2, nsmall=2)` e a média de 2020, R\$ `r format(GRTM$Indicador[1], big.mark=".", digits=2, nsmall=2)`, de modo que a *redução* de `r abs(round(GRTM$Ind_Var,1))`% foi observada, embora tenha havido um aumento significativo do número de linhas.
+
+A evolução dos gastos médios com Telefonia móvel desde 2016 são demonstrados na figura \@ref(fig:grtmAc) a seguir.
+
+```{r grtmAc,fig.width= 7,fig.asp=0.65,fig.cap="12.6 - GRTM médio - 2016 a 2022",echo = FALSE, message = FALSE}
+
+d |> group_by(ano) |> summarise(grtm = mean(grtm)) |>  
+  ggplot(mapping=aes(x=ano, y=grtm, fill =ano)) + geom_bar(stat='identity')+ theme_classic()+
+  geom_label_repel(aes(label=format(grtm, big.mark = ".",digits = 2, nsmall = 2), fill= ano, fontface="bold"),
+                   color="white",vjust=0)+
+  scale_color_manual(values = assec_colors)+
+  scale_fill_manual(values = assec_colors)+ylab(
+    expression(atop("Gasto médio anual "~GRTM,"(R$ \\ linha móvel)"))) + xlab("Ano")+
+  scale_y_continuous(labels = function(x) format(x, big.mark = ".",
+                                                 scientific = FALSE))
 ```
