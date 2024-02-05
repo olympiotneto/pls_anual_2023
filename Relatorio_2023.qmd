@@ -1784,23 +1784,23 @@ d |> group_by(ano) |>
 
 <br>
 
-O número de linhas móveis (LTM), bem como o gasto com essas linhas (GTM), em reais, no período analisado de 2020 e 2022, são apresentados na tabela \@ref(tab:tabLTMGTM). Observa-se que há um saldo expressivo no número de linhas móveis a partir de janeiro de 2022.
+O número de linhas móveis (LTM), bem como o gasto com essas linhas (GTM), em reais, no período analisado de 2021 e 2023, são apresentados na @tbl-tabltmgtm. Observa-se que há um aumento expressivo no número de linhas móveis que vem desde 2022.
 
-```{r tabLTMGTM, echo=FALSE, paged.print=TRUE, results='asis'}
+```{r}
 
 #| echo: false
 #| warning: false
-#| label: tbl-tabltfgtf
-#| tbl-cap: Indicadores LTF - linha telefônica fixa e GTF - gastos com telefonia fixa
+#| label: tbl-tabltmgtm
+#| tbl-cap: Indicadores LTM - linha telefônica móvel e GTM - gastos com telefonia móvel
 #| 
 
 d  |> 
   filter(ano %in% c(2021,2023)) |> 
-  select(mes_ano,ltf,gtf) |> 
+  select(mes_ano,ltm,gtm) |> 
   # mutate(Mês = paste(mes,"/",ano,sep="")) |> 
   # select(-mes,-ano) |> 
   # relocate(Mês,.before = ltf) |> 
-rename( "LTF" = `ltf`,"GTF"=`gtf`) |> 
+rename( "LTM" = `ltm`,"GTM"=`gtm`) |> 
 flextable() |> 
   # set_caption("Indicadores LTF e GTF") |> 
   align(j=1, align = "center",part = "all") |> 
