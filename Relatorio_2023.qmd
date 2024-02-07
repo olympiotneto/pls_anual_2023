@@ -67,7 +67,7 @@ d <- d |>
          gra = ga/mtotal,
          tmr = dpa + dpl + dmt + dvd + cge)
 
-
+#é só p editar -pode apagar
 
 # # #Pegar e Criar filtro para dados anuais (rever isso após completar dados anuais)
 # d_anual<- read_excel("Z:/Expediente/SUSTENTABILIDADE/Comissao_Gestora_PLS/Relatorios_PLS_R/Dados/Dados_SP.xlsx",
