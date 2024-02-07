@@ -180,7 +180,8 @@ filter(d,ano %in% c("2021","2023")) |>
                    color="white", size = 3)+
   scale_color_manual(values = assec_colors[c(3,5)])+
   scale_fill_manual(values = assec_colors[c(3,5)])+
-  ylab("CPP\n(Resmas)") + xlab("Mês")+
+  ylab("CPP\n(Resmas)") + xlab("Mês")+   
+  theme(legend.position = "top")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 
@@ -272,10 +273,10 @@ d |> filter(ano %in% c("2021","2023"))  |>
                 linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=2)+
   geom_label_repel(aes(label=format(gpp, big.mark = ".", nsmall = 2, digits = 2), fill= ano, fontface="bold"),
-                   color="white",size = 3)+
+                   color="white",size = 2.5, force = 100)+
   scale_color_manual(values = assec_colors[c(3,5)])+
   scale_fill_manual(values = assec_colors[c(3,5)])+
-  ylab("GPP\n(R$)") + xlab("Mês")+
+  ylab("GPP\n(R$)") + xlab("Mês")+   theme(legend.position = "top")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 
@@ -350,7 +351,7 @@ A @fig-gcc representa o desempenho do indicador nos anos de 2021 e 2023 e a @fig
 #| echo: false
 #| warning: false
 #| label: fig-gcc
-#| fig-cap: 3.1 - CC - 2022
+#| fig-cap: 3.1 - CC - 2021 e 2023
 #| fig-cap-location: bottom
 
 filter(d,ano %in% c("2021", "2023")) |> 
@@ -359,10 +360,11 @@ filter(d,ano %in% c("2021", "2023")) |>
   geom_line(aes(color=ano, 
                 linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
-  geom_label_repel(aes(label=format(cc, big.mark = "."), fill= ano, fontface="bold"),color="white", size = 2)+
+  geom_label_repel(aes(label=format(cc, big.mark = "."), fill= ano, fontface="bold"),color="white", size = 2, force = 20)+
   scale_color_manual(values = assec_colors[c(1,5)])+
   scale_fill_manual(values = assec_colors[c(1,5)])+
   ylab("CC\n(centos)") + xlab("Mês")+
+  theme(legend.position = "top")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 ```
@@ -446,10 +448,11 @@ filter(d,ano %in% c("2021", "2023")) |>
   geom_line(aes(color=ano, 
                 linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
-  geom_label_repel(aes(label=format(ced, big.mark = "."), fill= ano, fontface="bold"),color="white", size = 2)+
+  geom_label_repel(aes(label=format(ced, big.mark = "."), fill= ano, fontface="bold"),color="white", size = 2, force = 20)+
   scale_color_manual(values = assec_colors[c(2,5)])+
   scale_fill_manual(values = assec_colors[c(2,5)])+
-  ylab("CED\n(unidades)") + xlab("Mês")+
+  ylab("CED\n(unidades)") + xlab("Mês")+   
+  theme(legend.position = "top")+   
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 
@@ -532,10 +535,12 @@ filter(d,ano %in% c("2021", "2023")) |>
                 linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
   geom_label_repel(aes(label=format(cer, big.mark = "."), fill= ano, 
-                       fontface ="bold"),color="white", size = 3)+
+                       fontface ="bold"),color="white", size = 2.5)+
   scale_color_manual(values = assec_colors[c(2,5)])+
   scale_fill_manual(values = assec_colors[c(2,5)])+
-  ylab("CER\n(unidades)") + xlab("Mês")+
+  ylab("CER\n(unidades)") + 
+  xlab("Mês")+
+  theme(legend.position = "top")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 
@@ -569,7 +574,7 @@ d |>
 CER <- FunVar(d=d,indic = cer)
 ```
 
-O consumo anual de embalagens retornáveis para água mineral foi, em 2023, de `r format(CER$Indicador[2], big.mark=".")` unidades, enquanto no ano de 2021, foi de `r format(CER$Indicador[1], big.mark=".")`, o que resulta no **incremento** de `r abs(round(CER$Ind_Var,1))`% entre esses dois períodos analisados.
+O consumo anual de embalagens retornáveis para água mineral foi, em 2023, de `r format(CER$Indicador[2], big.mark=".")` unidades, enquanto no ano de 2021, foi de `r format(CER$Indicador[1], big.mark=".")`, o que resulta no **incremento** de `r abs(round(CER$Ind_Var,1))`% entre esses dois períodos analisados. O aumento reflete o impcato do retorno ao trabalho presencial híbrido no indicador.
 
 ## Gasto com água mineral em embalagens descartáveis (4.3 - GAED)
 
@@ -609,7 +614,10 @@ A @fig-ggaed representa o desempenho do indicador em 2021 e 2023 e a figura e @f
 #| fig-cap: 4.3 - GAED - 2021 e 2023
 #| fig-cap-location: bottom
 
-filter(d,ano %in% c("2021","2023")) |> 
+#label só nos diferentes de 0
+
+d |> 
+  filter(ano %in% c("2021","2023")) |> 
   ggplot(aes(x=mes,y=gaed, group = ano)) + 
   theme_classic() +
   geom_line(aes(color=ano, 
@@ -617,10 +625,11 @@ filter(d,ano %in% c("2021","2023")) |>
   geom_point(aes(fill = ano),shape=21, size=3) +
   geom_label_repel(aes(label=format(gaed, big.mark = "."), 
                        fill= ano, fontface="bold"),color="white", 
-                   size = 1.8) +
+                   size = 1.8, force = 20) +
   scale_color_manual(values = assec_colors[c(2,5)]) +
   scale_fill_manual(values = assec_colors[c(2,5)]) +
   ylab("GAED\n(reais)") + xlab("Mês") +
+  theme(legend.position = "top")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 ```
@@ -654,7 +663,7 @@ group_by(ano) |>
 GAED <- FunVar(d=d,indic = gaed)
 ```
 
-As despesas anuais com água mineral envasada em embalagens plásticas descartáveis em 2023 foi de R\$ `r format(GAED$Indicador[2], big.mark=".", nsmall=2)` e no decorrer do ano de 2021 R\$ `r format(GAED$Indicador[1], big.mark=".", nsmall=2)`. O **aumento** no período foi de `r abs(round(GAED$Ind_Var,1))`% no gasto com água mineral envasada em embalagens descartáveis .
+As despesas anuais com água mineral envasada em embalagens plásticas descartáveis em 2023 foi de R\$ `r format(GAED$Indicador[2], big.mark=".", nsmall=2)` e no decorrer do ano de 2021 R\$ `r format(GAED$Indicador[1], big.mark=".", nsmall=2)`. O **aumento** do indicador no período foi de `r abs(round(GAED$Ind_Var,1))`% .
 
 ## Gasto com água mineral em embalagens retornáveis (4.4 - GAER)
 
@@ -700,10 +709,11 @@ filter(d,ano %in% c("2021","2023")) |>
                 linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
   geom_label_repel(aes(label=format(gaer, big.mark = "."), 
-                       fill= ano, fontface="bold"),color="white", size = 3)+
+                       fill= ano, fontface="bold"),color="white", size = 2.5)+
   scale_color_manual(values = assec_colors[c(2,5)])+
   scale_fill_manual(values = assec_colors[c(2,5)])+
-  ylab("GAER\n(reais)") + xlab("Mês")+
+  ylab("GAER\n(reais)") + xlab("Mês")+   
+  theme(legend.position = "top")+   
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 ```
@@ -735,7 +745,7 @@ d |>
 GAER <- FunVar(d=d,indic = gaer)
 ```
 
-Os gastos anuais com água mineral envasada em embalagens retornáveis em 2023 foi de R\$ `r format(GAER$Indicador[2], big.mark=".", nsmall=2)` e no decorrer do ano de 2021, R\$ `r format(GAER$Indicador[1], big.mark=".", nsmall=2)`. A comparação entre esses dois anos resultou no **aumento** de `r abs(round(GAER$Ind_Var,1))`% no gasto com água mineral em embalagens retornáveis.
+Os gastos anuais com água mineral envasada em embalagens retornáveis em 2023 foi de R\$ `r format(GAER$Indicador[2], big.mark=".", nsmall=2)` e no decorrer do ano de 2021, R\$ `r format(GAER$Indicador[1], big.mark=".", nsmall=2)`. A comparação entre esses dois anos resultou no **aumento** de `r abs(round(GAER$Ind_Var,1))`%, o que indica o forte impacto no retorno ao trabalho híbrido.
 
 \newpage
 
@@ -791,6 +801,7 @@ filter(d,ano %in% c("2021", "2023")) |>
   scale_color_manual(values = assec_colors[c(5,2)])+
   scale_fill_manual(values = assec_colors[c(5,2)])+
   ylab("QI\n(impressões)") + xlab("Mês")+
+  theme(legend.position = "top")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 
@@ -882,7 +893,8 @@ filter(d,ano %in% c("2021","2023")) |>
   scale_fill_manual(values = assec_colors[c(1,4)])+
   scale_y_continuous(name="CEE\n(Kwh)", 
                      labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 
 ```
 
@@ -982,8 +994,7 @@ valign( valign = "center", part = "all") |>
   bold(bold = TRUE, part = "header") |>
   set_header_labels(mes="Mês") |> 
   bold(bold = TRUE, i = 13) |> 
-  add_footer_lines("A área total considerada em 2023 foi o valor 
-                   informado em 2022 no JN") |> 
+  add_footer_lines("A área total considerada em 2023 foi o valor informado em 2022 no JN") |> 
   autofit()
 
 ```
@@ -1013,7 +1024,8 @@ filter(d,ano %in% c("2021","2023")) |>
   scale_fill_manual(values = assec_colors[c(1,4)])+
   scale_y_continuous(name=expression(atop("CRE",~KWh/m^{2}~Total)), 
                      labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 
 ```
 
@@ -1065,7 +1077,8 @@ filter(d,ano %in% c("2021","2023")) |>
   scale_fill_manual(values = assec_colors[c(1,4)])+
   #Aqui retira o formato de nzmero científico
   scale_y_continuous(name="GEE\n(R$)", labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 
 ```
 
@@ -1180,7 +1193,8 @@ filter(d,ano %in% c("2021","2023")) |>
   #Aqui retira o formato de nzmero cientmfico
   scale_y_continuous(name=expression(atop("GRE",~"R/$"/m^{2}~Total)), 
                      labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 ```
 
 \newpage
@@ -1235,14 +1249,15 @@ filter(d,ano %in% c("2021","2023")) |>
   geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
   geom_label_repel(aes(label=format(ca, big.mark = "."),
-                       fill= ano, fontface="bold"), color="white")+
+                       fill= ano, fontface="bold"), color="white", size=2.5)+
   scale_color_manual(values = assec_colors[c(5,2)])+
   scale_fill_manual(values = assec_colors[c(5,2)])+
   #Aqui retira o formato de nzmero científico
   scale_y_continuous(name=expression("CA"~(m^{3})), 
                      labels = function(x) format(x, big.mark = ".", 
                                                  scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 
 ```
 
@@ -1253,9 +1268,9 @@ CA <- FunVar(d=d,indic = ca)
 
 ```
 
-O volume total de água consumida em 2021foi `r format(CA$Indicador[1], big.mark=".",nsmall=1)` $m^3$, resultado ainda impactado pela pandemia, e `r format(CA$Indicador[2], big.mark=".",nsmall=1)` $m^3$ em 2023, com teletrabalho híbrido já estabelecido, e por isso, entre 2021 e 2023, houve **aumento** de `r abs(round(CA$Ind_Var,1))`% no consumo anual de água.
+O volume total de água consumida em 2021 foi `r format(CA$Indicador[1], big.mark=".",nsmall=1)` $m^3$, resultado ainda impactado pela pandemia, e `r format(CA$Indicador[2], big.mark=".",nsmall=1)` $m^3$ em 2023, com teletrabalho híbrido já estabelecido, e por isso, entre 2021 e 2023, houve **aumento** de `r abs(round(CA$Ind_Var,1))`% no consumo anual de água.
 
-O consumo anual pode ser visto no gráfico \@ref(fig:caAc) a seguir.
+O consumo anual pode ser visto na @fig-gccac a seguir.
 
 ```{r}
 #| echo: false
@@ -1355,7 +1370,8 @@ filter(d,ano %in% c("2021","2023")) |>
   scale_y_continuous(name=expression(atop("CRA",~m^{3}/m^{2}~Total)), 
                      labels = function(x) format(x, big.mark = ".", 
                                                  scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 ```
 
 O consumo relativo médio de água em 2023 foi superior em todos os meses em comparação com 2021.
@@ -1407,7 +1423,8 @@ filter(d,ano %in% c("2021","2023")) |> ggplot(aes(x=mes,y=ga, group = ano))+ the
   scale_fill_manual(values = assec_colors[c(2,3)])+
   #Aqui retira o formato de nzmero cientmfico
   scale_y_continuous(name="GA\n(R$)", labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 ```
 
 ```{r GA_calc, echo=FALSE,include=FALSE}
@@ -1515,13 +1532,14 @@ filter(d,ano %in% c("2021","2023")) |>
   theme_classic()+
   geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
-  geom_label_repel(aes(label=format(gra, big.mark = ".",digits=2),fill= ano, fontface="bold"), color="white")+
+  geom_label_repel(aes(label=format(gra, big.mark = ".",digits=2),fill= ano, fontface="bold"), color="white", size = 2.5)+
   scale_color_manual(values = assec_colors[c(2,3)])+
   scale_fill_manual(values = assec_colors[c(2,3)])+
   #Aqui retira o formato de número científico
   scale_y_continuous(name=expression(atop("GRA",~"R$"/m^{2}~Total)), 
                      labels = function(x) format(x, big.mark = ".", scientific = FALSE))+ 
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 
 ```
 
@@ -1598,7 +1616,8 @@ d |> filter(ano %in% c("2021","2023")) |>
   #Aqui retira o formato de nzmero cientmfico
   scale_y_continuous(name= "TMR\n(Kg)", 
                      labels = function(x) format(x, big.mark = ".", scientific = FALSE))+
-  xlab("Mês")
+  xlab("Mês")+
+  theme(legend.position = "top")
 
 ```
 
@@ -1608,7 +1627,7 @@ TMR <- FunVar(d=d,indic = tmr)
 
 ```
 
-Os valores acumulados do indicador TMR em 2021 e 2023 foram, respectivamente, `r format(TMR$Indicador[1], big.mark=".", digits = 2, nsmall=1)` Kg e `r format(TMR$Indicador[2], big.mark=".", digits = 2, nsmall = 1)` Kg, de modo que foi observada o **incremento** de `r abs(round(TMR$Ind_Var,1))`%, impactado pelo retorno ao trabalho presencial (ainda qu híbrido).
+Os valores acumulados do indicador TMR em 2021 e 2023 foram, respectivamente, `r format(TMR$Indicador[1], big.mark=".", digits = 2, nsmall=1)` Kg e `r format(TMR$Indicador[2], big.mark=".", digits = 2, nsmall = 1)` Kg, de modo que foi observada o **incremento** de `r abs(round(TMR$Ind_Var,1))`%, impactado pelo retorno ao trabalho presencial (ainda que híbrido).
 
 Sintetizando, a @tbl-tabcomptmr a seguir apresenta o histórico do total anual dos indicadores de coleta de resíduos, a saber, *DPa*, *DPl,* *DMt*, *DVd*, *CGe* e o consolidado, o próprio TMR para os anos de 2021 a 2023.
 
@@ -1731,10 +1750,12 @@ d |> filter(ano %in% c("2021","2023")) |>
   geom_line(aes(color=ano, linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=2.5)+
   geom_label_repel(aes(label=format(grtf, big.mark = ".",digits = 2, nsmall = 2), 
-                       fill= ano, fontface="bold"),color="white")+
+                       fill= ano, fontface="bold"),color="white", size = 2.5)+
   scale_color_manual(values = assec_colors[c(4,6)])+
   scale_fill_manual(values = assec_colors[c(4,6)])+
-  ylab(expression(atop(~GRTF,"(R$ \\ linha fixa)"))) + xlab("Mês")+
+  ylab(expression(atop(~GRTF,"(R$ \\ linha fixa)"))) + 
+  xlab("Mês")+  
+  theme(legend.position = "top")+  
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",
                                                  scientific = FALSE))
 ```
@@ -1788,7 +1809,6 @@ d |> group_by(ano) |>
 O número de linhas móveis (LTM), bem como o gasto com essas linhas (GTM), em reais, no período analisado de 2021 e 2023, são apresentados na @tbl-tabltmgtm. Observa-se que há um aumento expressivo no número de linhas móveis que vem desde 2022.
 
 ```{r}
-
 #| echo: false
 #| warning: false
 #| label: tbl-tabltmgtm
@@ -1859,10 +1879,13 @@ filter(d,ano %in% c("2021","2023")) |>
                 linetype = ano),size = 1.1)+ 
   geom_point(aes(fill = ano),shape=21, size=3)+
   geom_label_repel(aes(label=format(grtm, big.mark = ".",digits = 2, nsmall = 2), 
-                       fill= ano, fontface="bold"),color="white")+
+                       fill= ano, fontface="bold"),color="white", size = 2.5,
+                   force = 20)+
   scale_color_manual(values = assec_colors[c(4,6)])+
   scale_fill_manual(values = assec_colors[c(4,6)])+
-  ylab(expression(atop(~GRTM,"(R$ \\ linha msvel)"))) + xlab("Mês")+
+  ylab(expression(atop(~GRTM,"(R$ \\ linha móvel)"))) + 
+  xlab("Mês")+   
+  theme(legend.position = "top")+
   scale_y_continuous(labels = function(x) format(x, big.mark = ".",digits = 2, nsmall = 2, scientific = FALSE))
 ```
 
@@ -1903,9 +1926,8 @@ d |>
                                                  scientific = FALSE))
 ```
 
-```{=tex}
 \newpage
-```
+
 # Apoio ao serviço administrativo (Item 15)
 
 A Resolução CNJ nº 400/2021 introduziu a avaliação de despesas com material gráfico realizado pelo órgão no período base a ser mensurado pelo indicador *15.1 - Gastos com serviços gráficos - (GCGraf)* de apuração mensal.
