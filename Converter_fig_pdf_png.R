@@ -6,7 +6,7 @@ paste(directory, "/",
       list.files(directory, pattern = "*.pdf"), sep = "") |>
   purrr::walk(
     \(files){
-      pdf_converter(
+      pdf_convert(
         files,
         format = "png",
         dpi = 300,
