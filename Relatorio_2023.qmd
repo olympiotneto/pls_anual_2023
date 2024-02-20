@@ -14,7 +14,9 @@ format:
         \setkeys{Gin}{width=1.15\linewidth}
         \setlength{\parindent}{1.5em}
 execute:
-  keep-md: true
+  # keep-md: true
+  freeze: auto
+  cache: true
   
 editor: visual
 ---
@@ -951,7 +953,7 @@ Periodicidade da apuração: mensal
 
 A apuração do *CRE* é dependente da áreas prediais das unidades pertencentes ao órgão. Essa informação é apurada anualmente pela **SGS** e lançada no Justiça em Números.
 
-A área total abarcada pelas unidades do TRE-SP ($m^{2}$) e o CRE ($kWh/m^{2}$) de 2021 e 2023 (*dado referente a 2022, pois não está disponível, até essa data, a mensuração referente ao ano 2023*), como informado no Justiça em Números, é apresentada na @tbl-tabm2t. Os resultados referentes ao indicados nos anos de 2021 a 2023 são disponibilizados na @tbl-tabcre.
+A área total abarcada pelas unidades do TRE-SP ($m^{2}$) e o CRE ($kWh/m^{2}$) de 2021 a 2023, como informado no Justiça em Números, é apresentada na @tbl-tabm2t. Os resultados referentes ao indicados nos anos de 2021 a 2023 são disponibilizados na @tbl-tabcre.
 
 ```{r}
 #| echo: false
@@ -996,7 +998,7 @@ valign( valign = "center", part = "all") |>
   bold(bold = TRUE, part = "header") |>
   set_header_labels(mes="Mês") |> 
   bold(bold = TRUE, i = 13) |> 
-  add_footer_lines("A área total considerada em 2023 foi o valor informado em 2022 no JN") |> 
+  # add_footer_lines("A área total considerada em 2023 foi o valor informado em 2022 no JN") |> 
   autofit()
 
 ```
@@ -1159,8 +1161,8 @@ valign( valign = "center", part = "all") |>
   bold(bold = TRUE, part = "header") |>
   set_header_labels(mes="Mês") |> 
   bold(bold = TRUE, i = 13) |> 
-  add_footer_lines("A área total considerada em 2023 foi o valor 
-                   informado em 2022 no JN") |> 
+  # add_footer_lines("A área total considerada em 2023 foi o valor 
+  #                  informado em 2022 no JN") |> 
   autofit()
 
 
@@ -1961,4 +1963,37 @@ d |>
   bold(bold = TRUE, part = "header") |> 
   bold(bold = TRUE, i = 13) |> 
   autofit()
+```
+
+```{=tex}
+\newpage
+\begin{center}
+\includegraphics[width=7cm]{logo_assec.png}
+\end{center}
+\vspace{1cm}
+\begin{center}
+\textbf{GILBERTO REZENDE DE ALMEIDA JUNIOR}\\
+\textbf{CONRE Nº 9.613} \\
+ASSESSOR-CHEFE
+\end{center} 
+\vspace{0.5cm}
+\begin{center}
+\textbf{OLYMPIO TEIXEIRA NETO}\\
+\textbf{CONRE Nº 10.216} 
+\end{center}
+\vspace{0.5cm}
+\begin{center}
+\textbf{ALISSON DE OLIVEIRA SILVA}\\
+\textbf{CONRE Nº 9.949} 
+\end{center}
+\vspace{0.5cm}
+\begin{center}
+\textbf{DANIELA SANTANA ARAÚJO}\\
+\textbf{CONRE Nº 9.637} 
+\end{center}
+\vspace{0.5cm}
+\begin{center}
+\textbf{RICARDO SALLES KURUSU}\\
+\textbf{CONRE Nº 9.489} 
+\end{center}
 ```
